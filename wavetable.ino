@@ -1,27 +1,32 @@
-int wavetablePosition = 0;
-byte wavetable[64];  // Audio Memory Array 
-boolean reinitializeWavetable = 1;
 
-word playWavetable(int wtposition){
-  word originalValue = wavetable[wtposition];         
-  word newValue = originalValue;
+volatile word DACValue = 0;
+
+
+void playWavetable( ){
+
+  wavetablePosition=wavetablePosition + wavetableOffset;         // modulate the wavetable startpoint
   
-// Decay   
-  /*
-  iw = (originalValue * 2) - offset;
-  i2 = (15625-cnt2)/64;
-  
-  iw *= i2;              // decay of wave
-  iw /= 256;
-    
-  DACValue = iw + offset;
-  */
-  
-  
-  return newValue;
+  DACValue = wavetable[wavetablePosition]; // << 4; 
+
+  // process the envelope
+   DACValue = (DACValue * (envelopeValue >> 6)) << 2 ;  
+
+  SPISend(DACValue);
+
+  // increment pointers
+  wavetablePosition++;                 // increment index
+
+  if (wavetablePosition == wavetableEnd){ 
+    wavetablePosition = wavetableStart;
+  }
+
+ //  variable delay controlled by potentiometer    
+  // when distortion then delay / processing time is too long     
+
+  for (int cnta=0; cnta <= wavetableDelay; cnta++) { 
+    ibb = ibb * 5;              
+  }
 }
-
-
 
 
  void setupWavetable(){ 
@@ -49,7 +54,7 @@ word playWavetable(int wtposition){
       }
        
        for (iw = 0; iw <= 32; iw++){    
-        tmpWave[iw+32] = (255 - iw * 4);
+        tmpWave[iw+32] = (255 - iw * 8);
         ee.writeBlock(iw+32, (uint8_t *) &tmpWave[iw+32], 1);
 
       }
@@ -94,11 +99,45 @@ word playWavetable(int wtposition){
         ee.writeBlock(iw+384, (uint8_t *) &tmpWave[iw], 1);
     
    }
-   
-  changeWave(0);       
-   Serial.println("Wavetable Created");
+     Serial.println("Wavetable Created");
+    changeWave(0);       
+ 
   }
 
 }  
+
+
+void changeWave(int index){ 
+  Serial.print("changed wavetable");
+  Serial.println(index);
+  for ( int i = 1; i < 64; i++){
+    wavetable[i] = ee.readByte(index * 64 + i);   
+  }
+  
+  //dumpEEPROM(0,64);
+}
+
+
+void dumpEEPROM(unsigned int addr, unsigned int length)
+{
+  // block to 10
+  addr = addr / 10 * 10;
+  length = (length + 9)/10 * 10;
+
+  byte b = ee.readByte(addr);
+  for (int i = 0; i < length; i++)
+  {
+    if (addr % 10 == 0)
+    {
+      Serial.println();
+      Serial.print(addr);
+      Serial.print(":\t");
+    }
+    Serial.print(b);
+    b = ee.readByte(++addr);
+    Serial.print("  ");
+  }
+  Serial.println();
+}
 
 

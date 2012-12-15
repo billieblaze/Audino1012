@@ -1,6 +1,4 @@
-// SPI 
-#define SLAVESELECT 3
-word DACValue;
+
 
 void setupDAC(){
   // initialize SPI:22
