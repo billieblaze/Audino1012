@@ -1,7 +1,7 @@
 
 void oneStep ( int x ) {
   
-  if (sample[x] < 0) { sample[x] = 0; envState[x] = DONE; gateState[x]=0;}
+  if (ADSRSample[x] < 0) { ADSRSample[x] = 0; envState[x] = DONE; gateState[x]=0;}
   
   switch (envState[x]) {
   
@@ -14,8 +14,8 @@ void oneStep ( int x ) {
       break;
     }
 
-    if (sample[x] + attackRate < 4000 ) {
-      sample[x] += attackRate;
+    if (ADSRSample[x] + attackRate < 4000 ) {
+      ADSRSample[x] += attackRate;
     } else {
       envState[x] = DECAY;
     //  Serial.println("decay");
@@ -29,8 +29,8 @@ void oneStep ( int x ) {
       envState[x] = RELEASE;
       break;
     }
-    if (sample[x] - decayRate > sustainLevel) {
-      sample[x] -= decayRate;      
+    if (ADSRSample[x] - decayRate > sustainLevel) {
+      ADSRSample[x] -= decayRate;      
     } else {
       envState[x] = SUSTAIN;
   //    Serial.println("sustain");
@@ -44,7 +44,7 @@ void oneStep ( int x ) {
 
       break;
     }
-    sample[x] = sustainLevel;
+    ADSRSample[x] = sustainLevel;
     break;
 
   case RELEASE:
@@ -53,17 +53,17 @@ void oneStep ( int x ) {
       envState[x] = ATTACK;
       break;
     } 
-    if (sample[x] - releaseRate > 0) {
-      sample[x] -= releaseRate;      
+    if (ADSRSample[x] - releaseRate > 0) {
+      ADSRSample[x] -= releaseRate;      
       
     } else {
-      sample[x] = 0;   
+      ADSRSample[x] = 0;   
       envState[x] = DONE;
     }
     break;
     
   case DONE:
-    sample[x] = 0;   
+    ADSRSample[x] = 0;   
     if (gateState[x] == 1) {
       envState[x] = ATTACK;
       break;
@@ -71,7 +71,7 @@ void oneStep ( int x ) {
 
     break;
     }
-      writeDAC (sample[x], x);
+      writeDAC (ADSRSample[x], x);
 }
 
 int envelopeValue;

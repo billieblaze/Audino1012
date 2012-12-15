@@ -37,14 +37,22 @@ volatile boolean f_sample;
 
 volatile byte ibb;
 
-int wavetablePosition = 0;
-byte wavetable[64];  // Audio Memory Array 
-boolean reinitializeWavetable = 1;
+int samplePosition = 0;
+int sampleSize = 128;
+word sample[128];  // Audio Memory Array 
+boolean reinitializeWavetable = 0;
 
-int wavetableStart = 0;  
-int wavetableEnd = 63;
-int wavetableOffset = 0;
-int wavetableDelay=0;
+int sampleStart = 0;  
+int sampleEnd = 63;
+int sampleOffset = 0;
+int sampleDelay=0;
+
+int sampleShiftLeft = 0;
+int sampleShiftRight = 0;
+
+// shift DAC Data
+int bitShiftLeft = 0;
+int bitShiftRight = 5;
 
 // lcdkeypad
 #define lcd_rows 2
@@ -125,30 +133,10 @@ PROGMEM const char *menu_styles[] = {menu_style00, menu_style01, menu_style02, m
 //This program is the main menu. It handles inputs from the keys, updates the menu or executes a certain menu function accordingly.
 int global_style=49; // This is the style of the menu
 
-// Envelope
-volatile const uint16_t attack[] = {
-  0, 1, 3, 5, 7, 9, 11, 13, 14, 16, 18, 20, 22, 23, 25, 27,
-  29, 30, 32, 34, 35, 37, 39, 41, 42, 44, 45, 47, 49, 50, 52, 54,
-  55, 57, 58, 60, 61, 63, 65, 66, 68, 69, 71, 72, 74, 75, 76, 78,
-  79, 81, 82, 84, 85, 87, 88, 89, 91, 92, 93, 95, 96, 98, 99, 100,
-  102, 103, 104, 105, 107, 108, 109, 111, 112, 113, 114, 116, 117, 118, 119, 121,
-  122, 123, 124, 125, 126, 128, 129, 130, 131, 132, 133, 135, 136, 137, 138, 139,
-  140, 141, 142, 143, 144, 146, 147, 148, 149, 150, 151, 152, 153, 154, 155, 156,
-  157, 158, 159, 160, 161, 162, 163, 164, 165, 166, 167, 168, 169, 170, 170, 171,
-  172, 173, 174, 175, 176, 177, 178, 179, 179, 180, 181, 182, 183, 184, 185, 185,
-  186, 187, 188, 189, 190, 190, 191, 192, 193, 194, 194, 195, 196, 197, 198, 198,
-  199, 200, 201, 201, 202, 203, 204, 204, 205, 206, 206, 207, 208, 209, 209, 210,
-  211, 211, 212, 213, 213, 214, 215, 216, 216, 217, 218, 218, 219, 219, 220, 221,
-  221, 222, 223, 223, 224, 225, 225, 226, 226, 227, 228, 228, 229, 229, 230, 231,
-  231, 232, 232, 233, 233, 234, 235, 235, 236, 236, 237, 237, 238, 238, 239, 239,
-  240, 240, 241, 242, 242, 243, 243, 244, 244, 245, 245, 246, 246, 247, 247, 248,
-  248, 249, 249, 249, 250, 250, 251, 251, 252, 252, 253, 253, 254, 254, 255, 255
-};
-
-int attackRate = 100;
-int decayRate = 100;
-int sustainLevel = 1500;
-int releaseRate = 10;
+int attackRate = 1;
+int decayRate = 10;
+int sustainLevel = 2000;
+int releaseRate = 50;
 
 // shorthand for our envelope stages
 const int DONE = 0;
@@ -159,66 +147,47 @@ const int RELEASE = 4;
 
 int gateState[] = {0,0};
 int envState[] = {0,0};
-word sample[] = {0,0};
-
+word ADSRSample[] = {0,0};
+int envelopeShift = 6;
 int cnt = 0;
 
 
-void setup(){ 
+void setup(){
+
   disableInterrupts();
   Serial.begin(57600);
   setupLCDKeypad();
-  setupWavetable();
-
+  setupWavetable();  
+  Serial.println("setup ad/da");
   setupDAC();
   setupADC();
- 
+  Serial.println("setup interrupt");
   setupInterrupt();   
   enableInterrupts();
+
+  Serial.println("BEGIN!");
 }
 
 void loop(){ 
   gateState[0] = 1;
   delay(400);
   gateState[0] = 0;
-  delay(500);
-
-  wavetableDelay = wavetableDelay + 20;  
-  
-
-switch (cnt){ 
-     case 5: 
-      changeWave(1);
-        wavetableDelay = 0;
-    break; 
-
-     case 10: 
-  
-      changeWave(2);
-            wavetableDelay = 0;
-    break; 
+  delay(1500);
 
 
-     case 15: 
-      changeWave(3);
-      wavetableDelay = 0;
-    break; 
+//  bitShiftRight = 2;
 
 
-     case 20: 
-      changeWave(4);
-      wavetableDelay = 0;
-    break; 
+  sampleDelay = 40;  
+//sampleStart = 10; 
+//sampleEnd = 50;
+  //triangle 
+  //changeWave(0,1,128,0);
+  //Square changeWave(128,1,128,0);
+  changeWave(cnt * 1, 3, cnt * 5, 20);  // start point, group, steps, randomizer
 
-
-     case 25: 
-      changeWave(5);
-      wavetableDelay = 0;
-    break; 
-
-  
-}
   cnt++;
+
 //  top_menu(); 
   
  }

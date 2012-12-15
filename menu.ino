@@ -244,7 +244,7 @@ myListInput.step.c_arr[1]=1; // Display the list as two columns
 
   select_list(&myListInput);
 
-  changeWave(myListInput.low.i-1);
+  changeWave(myListInput.low.i-1, 0, 0,0);
 }
 
 
@@ -255,7 +255,7 @@ void sub_menu_1_function_1()
   lcd.setCursor(0,1);
 
   phi_prompt_struct myIntegerInput; // This struct stores information for library functions 
-  myIntegerInput.ptr.i_buffer=&wavetableStart; // Pass the address of user_input to the library. After library function call, user input will be stored in this variable. Note the use of “&”. 
+  myIntegerInput.ptr.i_buffer=&sampleStart; // Pass the address of user_input to the library. After library function call, user input will be stored in this variable. Note the use of “&”. 
 myIntegerInput.low.i=0; // Lower limit. The number wraps to 20 when decreased from 0. 
 myIntegerInput.high.i=64; // Upper limit. The number wraps to 0 when increased from 20. 
 myIntegerInput.step.i=1; // Step size. You will get 0, 2, 4, 6, 8, etc if you set it to 2. 
@@ -274,7 +274,7 @@ void sub_menu_1_function_2()
   lcd.print("WT End");
   lcd.setCursor(0,1);
   phi_prompt_struct myIntegerInput; // This struct stores information for library functions 
-  myIntegerInput.ptr.i_buffer=&wavetableEnd; // Pass the address of user_input to the library. After library function call, user input will be stored in this variable. Note the use of “&”. 
+  myIntegerInput.ptr.i_buffer=&sampleEnd; // Pass the address of user_input to the library. After library function call, user input will be stored in this variable. Note the use of “&”. 
 myIntegerInput.low.i=0; // Lower limit. The number wraps to 20 when decreased from 0. 
 myIntegerInput.high.i=64; // Upper limit. The number wraps to 0 when increased from 20. 
 myIntegerInput.step.i=1; // Step size. You will get 0, 2, 4, 6, 8, etc if you set it to 2. 
@@ -294,7 +294,7 @@ void sub_menu_1_function_3()
   lcd.setCursor(0,1);
 
   phi_prompt_struct myIntegerInput; // This struct stores information for library functions 
-  myIntegerInput.ptr.i_buffer=&wavetableOffset; // Pass the address of user_input to the library. After library function call, user input will be stored in this variable. Note the use of “&”. 
+  myIntegerInput.ptr.i_buffer=&sampleOffset; // Pass the address of user_input to the library. After library function call, user input will be stored in this variable. Note the use of “&”. 
 myIntegerInput.low.i=0; // Lower limit. The number wraps to 20 when decreased from 0. 
 myIntegerInput.high.i=63; // Upper limit. The number wraps to 0 when increased from 20. 
 myIntegerInput.step.i=1; // Step size. You will get 0, 2, 4, 6, 8, etc if you set it to 2. 
@@ -314,7 +314,7 @@ void sub_menu_1_function_4()
   lcd.setCursor(0,1);
 
   phi_prompt_struct myIntegerInput; // This struct stores information for library functions 
-  myIntegerInput.ptr.i_buffer=&wavetableDelay; // Pass the address of user_input to the library. After library function call, user input will be stored in this variable. Note the use of “&”. 
+  myIntegerInput.ptr.i_buffer=&sampleDelay; // Pass the address of user_input to the library. After library function call, user input will be stored in this variable. Note the use of “&”. 
 myIntegerInput.low.i=0; // Lower limit. The number wraps to 20 when decreased from 0. 
 myIntegerInput.high.i=63; // Upper limit. The number wraps to 0 when increased from 20. 
 myIntegerInput.step.i=1; // Step size. You will get 0, 2, 4, 6, 8, etc if you set it to 2. 

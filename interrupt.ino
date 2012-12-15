@@ -1,6 +1,7 @@
 void disableInterrupts(){
   /* First disable the timer overflow interrupt while we're configuring */
   TIMSK2 &= ~(1<<TOIE2);  
+ 
 }
 
 void enableInterrupts(){
@@ -43,11 +44,11 @@ ISR( TIMER2_OVF_vect ){
 
   div32=!div32;                      // divide timer2 frequency / 2 to 31.25kHz
   if (div32){ 
-    playWavetable( );
+    playSample( );
+
 
     div16=!div16;  
     if (div16) { 
-
 
 
       // sample channel 1 and 2 alternately so each channel is sampled with 15.6kHz
