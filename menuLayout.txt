@@ -1,0 +1,34 @@
+Oscillator
+|
+|-Waveform
+| |-Preset
+| |
+| |-sampleStart
+| |-SampleEnd
+| |-SampleOffset
+| |-Sample Delay
+| |
+| |-SampleVelocity
+| |-sampleShiftLeft
+| |-sampleShiftRight
+| |-samplePosition
+| |
+| |-Ext In Vol
+| |-Ext In Shift
+| |-Ext In Dest
+| |-Ext In EFX
+|
+|
+|-Envelope
+| |-Attack
+| |-Decay
+| |-Sustain
+| |-Release
+| |
+| |-DACShiftLeft
+| |-DACShiftRight
+|
+|-Effects
+| |-Type
+| |-Param1
+| |-Param2

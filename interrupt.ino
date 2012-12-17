@@ -42,15 +42,17 @@ void setupInterrupt(){
 
 ISR( TIMER2_OVF_vect ){
 
+
+
   div32=!div32;                      // divide timer2 frequency / 2 to 31.25kHz
   if (div32){ 
-    playSample( );
-
+ 
 
     div16=!div16;  
     if (div16) { 
-
-
+playSample( );
+ 
+ 
       // sample channel 1 and 2 alternately so each channel is sampled with 15.6kHz
       //badc1=ADCH;                    // get ADC channel 1
       //sbi(ADMUX,MUX1);               // set multiplexer to channel 1
@@ -59,7 +61,7 @@ ISR( TIMER2_OVF_vect ){
       //    f_sample=true;
     }
     else{
-
+ 
       f_sample=true;
     }
     ibb++;  
@@ -67,7 +69,7 @@ ISR( TIMER2_OVF_vect ){
     div8=!div8;  
     if (div8) { 
 
-
+ 
       div4=!div4;  
       if (div4) { 
         div2=!div2;  

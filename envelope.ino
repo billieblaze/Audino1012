@@ -74,8 +74,8 @@ void oneStep ( int x ) {
       writeDAC (ADSRSample[x], x);
 }
 
-int envelopeValue;
+
 void writeDAC( int sample, int dac) { 
 // Serial.println(sample);
-  envelopeValue = sample;
+  envelopeValue[dac] = sample;
 }

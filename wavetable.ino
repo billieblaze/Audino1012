@@ -1,9 +1,10 @@
 
-volatile unsigned int DACValue = 0;
+volatile long DACValue = 0;
 
 
 void playSample( ){
 
+if (envState[0] == 1){
   samplePosition=samplePosition + sampleOffset;         // modulate the wavetable startpoint
   samplePosition = samplePosition << sampleShiftLeft;
   samplePosition = samplePosition >> sampleShiftRight;
@@ -12,7 +13,7 @@ void playSample( ){
   DACValue = sample[samplePosition];
    
   // process the envelope
-  DACValue =  (DACValue * (envelopeValue  >> envelopeShift) );  
+  DACValue =  (DACValue * (envelopeValue[0]  >> envelopeShift) );   // todo: add sample velocity
    
   DACValue = DACValue << bitShiftLeft; 
   DACValue = DACValue >> bitShiftRight; 
@@ -28,10 +29,15 @@ void playSample( ){
 
  //  variable delay controlled by potentiometer    
   // when distortion then delay / processing time is too long     
-
+  
+  // envelope 1 -> pitch
+ // sampleDelay = sampleDelay - (4000 - envelopeValue[0])/2;  
+  
   for (int cnta=0; cnta <= sampleDelay; cnta++) { 
     ibb = ibb * 5;              
   }
+  
+}
 }
 
 
@@ -109,7 +115,7 @@ void playSample( ){
      Serial.println("Wavetable Created");
      
   //   dumpEEPROM(1, sampleSize*10);     
-    changeWave(0,1, 0, 0);       
+    changeWave(0,1, 128, 0);       
  
   }
 
@@ -126,14 +132,13 @@ void changeWave(int index, int group, int steps, int randomize){
 
   Serial.print("change wave");
 
-  if (randomize != 0 ) { randomize =   random(0, randomize);} 
  
   for ( int groupCount = 1; groupCount <= group; groupCount++){ 
     stepCount = 0;
      
     for ( int i = 0; i <  (groupCount*steps); i++){
   
-      int address = index  +    (groupCount*i) + randomize;
+      int address = index  +    (groupCount*i) + random(0, randomize);;
      
       Serial.println(address);
      
