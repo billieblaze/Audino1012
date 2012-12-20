@@ -1,10 +1,9 @@
 
 void HandleNoteOn(byte channel, byte pitch, byte velocity) { 
-
+  envState[0] = 0;
   // Do whatever you want when you receive a Note On.
-  lcd.print("Non");
   envState[0] = 1;   // start the wavetable
-  //sampleDelay = pitch;
+  sampleDelay = (1000 - (pitch*12)) ;
   //sampleVelocity = velocity;
   
   if (velocity == 0) {
@@ -21,7 +20,7 @@ void HandleNoteOff(byte channel, byte pitch, byte velocity) {
 void setupMIDI() {
 //lcd.print("MIDI");
   // Initiate MIDI communications, listen to all channels
-  MIDI.begin(MIDI_CHANNEL_OMNI);    
+  //MIDI.begin(MIDI_CHANNEL_OMNI);    
   
   MIDI.setHandleNoteOn(HandleNoteOn);  
   MIDI.setHandleNoteOff(HandleNoteOff);

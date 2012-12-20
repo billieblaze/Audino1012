@@ -4,14 +4,16 @@ volatile long DACValue = 0;
 
 void playSample( ){
 
+  
 if (envState[0] == 1){
+  
   samplePosition=samplePosition + sampleOffset;         // modulate the wavetable startpoint
   samplePosition = samplePosition << sampleShiftLeft;
   samplePosition = samplePosition >> sampleShiftRight;
   
   
   DACValue = sample[samplePosition];
-   
+  DACValue = ee.readByte(samplePosition);
   // process the envelope
   DACValue =  (DACValue * (envelopeValue[0]  >> envelopeShift) );   // todo: add sample velocity
    
@@ -130,7 +132,7 @@ void changeWave(int index, int group, int steps, int randomize){
   int stepCount = 0;
   word ar;
 
-  Serial.print("change wave");
+  Serial.print("change wave ");
 
  
   for ( int groupCount = 1; groupCount <= group; groupCount++){ 
@@ -139,10 +141,11 @@ void changeWave(int index, int group, int steps, int randomize){
     for ( int i = 0; i <  (groupCount*steps); i++){
   
       int address = index  +    (groupCount*i) + random(0, randomize);;
-     
+   
       Serial.println(address);
+    
+     // ee.readBlock(address, (uint8_t*) &ar, 2);  
      
-      ee.readBlock(address, (uint8_t*) &ar, 2);  
       sample[pointer] = ar;
       pointer++;
       stepCount ++;

@@ -7,7 +7,7 @@
 #include <SPI.h>
 #include <Wire.h> 
 #include <MIDI.h>
-
+#include <Potentiometer.h>
 
 LiquidCrystal lcd(8, 9, 4, 5, 6, 7); 
 boolean showMenu = 1;
@@ -81,22 +81,26 @@ int envelopeShift = 6;
 void setup(){
 
   disableInterrupts();
-  //Serial.begin(57600);
+  Serial.begin(57600);
   setupLCDKeypad();
   setupWavetable();  
-  //Serial.println("setup ad/da");
+//  Serial.println("setup ad/da");
   setupDAC();
   setupADC();
-  //Serial.println("setup interrupt");
+//  Serial.println("setup interrupt");
   setupMIDI();
-  //Serial.println("setup MIDI");
+// Serial.println("setup MIDI");
   
   setupInterrupt();   
+//changeWave(0,1, 128, 0);   
+  
+  
   enableInterrupts();
 
-  //Serial.println("BEGIN!");
-
-
+  Serial.println("BEGIN!");
+    
+    
+ 
 }
 
 int cnt = 0;
@@ -105,14 +109,13 @@ void loop(){
 //sampleEnd = 50;
   //triangle 
   //changeWave(0,1,128,0);
+//  envState[0] = 1;
   //Square changeWave(128,1,128,0);
   
-//  changeWave(cnt * 10, 4, cnt * 20, 10);  // start point, group, steps, randomizer  
+//r  changeWave(cnt * 10, 4, cnt * 20, 10);  // start point, group, steps, randomizer  
 //  cnt++;
-
   // if (showMenu == 1){ 
-   //  top_menu(); 
+     top_menu(); 
   // }
-   MIDI.read();
-
+ 
  }

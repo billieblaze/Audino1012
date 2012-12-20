@@ -1,7 +1,6 @@
 void disableInterrupts(){
   /* First disable the timer overflow interrupt while we're configuring */
-  TIMSK2 &= ~(1<<TOIE2);  
- 
+  TIMSK2 &= ~(1<<TOIE2);   
 }
 
 void enableInterrupts(){
@@ -35,53 +34,44 @@ void setupInterrupt(){
 
 //******************************************************************
 // Timer2 Interrupt Service at 62.5 KHz
-// here the audio and pot signal is sampled in a rate of:  16Mhz / 256 / 2 / 2 = 15625 Hz
-// runtime : xxxx microseconds
-
-
 
 ISR( TIMER2_OVF_vect ){
-
-
+  
 
   div32=!div32;                      // divide timer2 frequency / 2 to 31.25kHz
-  if (div32){ 
- 
-
-    div16=!div16;  
-    if (div16) { 
-playSample( );
- 
- 
+  if (div32){  
+      div16=!div16;  
+      if (div16) {  
+     
       // sample channel 1 and 2 alternately so each channel is sampled with 15.6kHz
       //badc1=ADCH;                    // get ADC channel 1
       //sbi(ADMUX,MUX1);               // set multiplexer to channel 1
       //    ADCValue = analogRead(A1);    
 
       //    f_sample=true;
-    }
-    else{
+      } else{
+         
+        
+        div8=!div8;  
+        if (div8) { 
+            playSample( ); 
  
-      f_sample=true;
-    }
-    ibb++;  
-
-    div8=!div8;  
-    if (div8) { 
-
- 
-      div4=!div4;  
-      if (div4) { 
-        div2=!div2;  
-        if (div2) { 
-
-          oneStep(0);
-
+          div4=!div4; 
+          if (div4) { 
+             oneStep(0);
+              oneStep(1);
+         
+            MIDI.read();
+          } else { 
+             readPotentiometers();
+          }
         }
-      }
-    }  
+      }  
+    }
+    //ibb++;  
+
     // sbi(ADCSRA,ADSC);               // start next conversion
-  }
+  
 }
 
 
