@@ -5,12 +5,12 @@ void disableInterrupts(){
 
 void enableInterrupts(){
   /* Finally load end enable the timer */
-  TCNT2 = tcnt2;  
+//  TCNT2 = tcnt2;  
   TIMSK2 |= (1<<TOIE2);    
 }
 
 void setupInterrupt(){
-  Serial.print("Interrupt Setup started...");
+//  Serial.print("Interrupt Setup started...");
 
   /* Configure timer2 in normal mode (pure counting, no PWM etc.) */
   //  TCCR2A &= ~((1<<WGM21) | (1<<WGM20));  
@@ -29,7 +29,7 @@ void setupInterrupt(){
   TCCR2B |= (1<<CS20) ; // Set bits  
   TCCR2B &= ~(1<<CS21) | (1<<CS22);             // Clear bit  
 
-  Serial.println("complete");
+  //Serial.println("complete");
 }
 
 //******************************************************************
@@ -49,29 +49,29 @@ ISR( TIMER2_OVF_vect ){
       //    ADCValue = analogRead(A1);    
 
       //    f_sample=true;
+ 
       } else{
-         
-        
         div8=!div8;  
         if (div8) { 
-            playSample( ); 
- 
+         
+       //  playSample( ); 
+
           div4=!div4; 
           if (div4) { 
              oneStep(0);
-              oneStep(1);
+             oneStep(1);
          
             MIDI.read();
           } else { 
-             readPotentiometers();
+             //readPotentiometers();
+      
           }
         }
       }  
     }
     //ibb++;  
 
-    // sbi(ADCSRA,ADSC);               // start next conversion
-  
+    // sbi(ADCSRA,ADSC);               // start next conversion 
 }
 
 
