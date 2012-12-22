@@ -31,17 +31,19 @@ PROGMEM const char *string_table[] = 	   // change "string_table" name to suit
   string_8,
   string_9,
   string_10,
-  string_11
+  string_11,
+  string_12,
+  string_13,
+  string_14,
+  string_15
  };
 
-char buffer[16];
 
-char* labels[4];
-
-int values[4];
 volatile int currentSetting=0;
 
 void setupMenu(){
+  char buffer[16];
+
   g_menuLCD.MenuLCDSetup();  
 
   //Add nodes via a depth-first traversal order
@@ -74,9 +76,6 @@ void setupMenu(){
   strcpy_P(buffer, (char*)pgm_read_word(&(string_table[7])));
   g_menuManager.addChild( new MenuEntry(buffer, NULL, envelopeCallback ) );
 
-  strcpy_P(buffer, (char*)pgm_read_word(&(string_table[8])));
-  g_menuManager.addChild( new MenuEntry( buffer, NULL, externalCallback) );
-
   g_menuManager.DrawMenu();
   
   analogButtons.addButton(b_up);
@@ -88,7 +87,6 @@ void setupMenu(){
       
 void doConfigScreen( char* pMenuText[], int menuvalues[]){ 
   g_isDisplaying = false;
-  g_updateLabels = true;
   g_updateValues = true;
 
    while ( g_isDisplaying == false ) { 
@@ -111,8 +109,8 @@ void doConfigScreen( char* pMenuText[], int menuvalues[]){
 
 
           // Line 2
-          sprintf(buffer," %3d %3d %3d %3d", menuvalues[0], menuvalues[1], menuvalues[2], menuvalues[3]);
-          pTextLines[1] = buffer;
+          sprintf(pTextLines[1]," %3d %3d %3d %3d", menuvalues[0], menuvalues[1], menuvalues[2], menuvalues[3]);
+           
           // Send it!
           g_menuLCD.PrintMenu( pTextLines, 2, 3 );
           
@@ -125,11 +123,14 @@ void doConfigScreen( char* pMenuText[], int menuvalues[]){
 
   
 void wavetableCallback( char* pMenuText, void *pUserData ){
-
-char buffer1[3];
-char buffer2[3];
-char buffer3[3];
-char buffer4[3];
+  char* labels[4];
+  
+  int values[4];
+  
+  char buffer1[3];
+  char buffer2[3];
+  char buffer3[3];
+  char buffer4[3];
 
   labels[0] = strcpy_P(buffer1, (char*)pgm_read_word(&(string_table[8])));;
   labels[1] = strcpy_P(buffer2, (char*)pgm_read_word(&(string_table[9])));;
@@ -146,10 +147,18 @@ char buffer4[3];
 
 void envelopeCallback( char* pMenuText, void *pUserData ){
 
-  labels[0] = strcpy_P(buffer, (char*)pgm_read_word(&(string_table[12])));;
-  labels[1] = strcpy_P(buffer, (char*)pgm_read_word(&(string_table[13])));;
-  labels[2] = strcpy_P(buffer, (char*)pgm_read_word(&(string_table[14])));;
-  labels[3] = strcpy_P(buffer, (char*)pgm_read_word(&(string_table[15])));;
+  char* labels[4];
+
+  int values[4];
+  char buffer1[3];
+  char buffer2[3];
+  char buffer3[3];
+  char buffer4[3];
+
+  labels[0] = strcpy_P(buffer1, (char*)pgm_read_word(&(string_table[12])));;
+  labels[1] = strcpy_P(buffer2, (char*)pgm_read_word(&(string_table[13])));;
+  labels[2] = strcpy_P(buffer3, (char*)pgm_read_word(&(string_table[14])));;
+  labels[3] = strcpy_P(buffer4, (char*)pgm_read_word(&(string_table[15])));;
   
   values[0] = attackRate[0];
   values[1] = decayRate[0];
@@ -211,5 +220,6 @@ void prevValue(){
   }
   g_updateValues = true;
 }
+
 
 
