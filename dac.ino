@@ -1,3 +1,6 @@
+// DAC 
+#define SLAVESELECT 3
+
 void setupDAC(){
   pinMode(SLAVESELECT, OUTPUT);
   digitalWrite(SLAVESELECT, HIGH);

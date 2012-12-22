@@ -1,12 +1,13 @@
+#include EEPROM.h
 #include <Wire.h> 
 
 #include <I2C_eeprom.h>
-I2C_eeprom ee(0x50);
+
 
 int sampleSize = 128;
 
 void setup(){
-Serial.begin(115200);
+  Serial.begin(115200);
   Serial.println("Initializing Waveform");
 
 }

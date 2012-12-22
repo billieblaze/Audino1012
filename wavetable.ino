@@ -1,3 +1,23 @@
+I2C_eeprom ee(0x50);
+  
+//wavetable
+
+volatile byte ibb;
+volatile byte samplePosition = 0;
+word sample[128];  // Audio Memory Array 
+
+int sampleStart = 0;  
+int sampleEnd = 64;
+int sampleOffset = 0;
+int sampleDelay = 0;
+int sampleVelocity = 127;
+
+int sampleShiftLeft = 0;
+int sampleShiftRight = 0;
+
+// shift DAC Data
+int bitShiftLeft = 0;
+int bitShiftRight = 16;
 
 volatile unsigned int DACValue = 0;
 
@@ -9,8 +29,8 @@ if (envState[0]){
   samplePosition = samplePosition << sampleShiftLeft;
   samplePosition = samplePosition >> sampleShiftRight;
   
-  DACValue = sample[samplePosition];
-  //ee.readBlock(samplePosition, (uint8_t*) &DACValue, 2);  
+  //DACValue = sample[samplePosition];
+  ee.readBlock(samplePosition, (uint8_t*) &DACValue, 2);  
   
   // process the envelope
   DACValue =  (DACValue * (ADSRSample[0]  >> 1) );   // todo: add sample velocity
@@ -41,7 +61,13 @@ if (envState[0]){
 }
 
 
- 
+void setPitch (int pitch) {
+   sampleDelay =  1000 - (pitch*12);
+}
+
+void setVelocity (int velocity){ 
+   sampleVelocity = velocity; 
+}
 
 // select n groups of steps at evern n increment in wavetable
 

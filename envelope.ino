@@ -1,3 +1,20 @@
+
+// shorthand for our envelope stages
+const byte DONE = 0;
+const byte ATTACK = 1;
+const byte DECAY = 2;
+const byte SUSTAIN = 3;
+const byte RELEASE = 4;
+
+boolean gateState[] = {0,0};
+byte envState[] = {0,0};
+byte ADSRSample[] = {0,0};
+
+int attackRate[] = {1, 200};
+int decayRate[] = {10, 100};
+int sustainLevel[] = {255, 255};
+int releaseRate[] = {50, 200};
+
 void oneStep ( int x ) {
   if (ADSRSample[x] < 0) { ADSRSample[x] = 0; envState[x] = DONE; gateState[x]=0;}
   
@@ -62,4 +79,11 @@ void oneStep ( int x ) {
 }
 
 
+void envOn(int envelope){
+   envState[envelope] = 1;
+}
 
+
+void envOff(int envelope){
+   envState[envelope] = 0;
+}

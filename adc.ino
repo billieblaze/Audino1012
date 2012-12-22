@@ -1,3 +1,10 @@
+// ADC
+//#define cbi(sfr, bit) (_SFR_BYTE(sfr) &= ~_BV(bit))
+//#define sbi(sfr, bit) (_SFR_BYTE(sfr) |= _BV(bit))
+//int ADCOffset = 512;
+//word ADCValue; 
+
+
 void setupADC(){ 
     // set adc prescaler  to 64 for 19kHz sampling frequency
   /*cbi(ADCSRA, ADPS2);

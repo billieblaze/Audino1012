@@ -1,44 +1,28 @@
-prog_char string_0[] PROGMEM = "Audino1012";   // "String 0" etc are strings to store - change to suit.
-prog_char string_1[] PROGMEM = "WT";
-prog_char string_2[] PROGMEM = "Sample";
-prog_char string_3[] PROGMEM = "Env 1";
-prog_char string_4[] PROGMEM = "Env 2";
-prog_char string_5[] PROGMEM = "LFO 1";
-prog_char string_6[] PROGMEM = "LFO 2";   // "String 0" etc are strings to store - change to suit.
-prog_char string_7[] PROGMEM = "Ext In";
-prog_char string_8[] PROGMEM = "Sta";
-prog_char string_9[] PROGMEM = "End";
-prog_char string_10[] PROGMEM = "Off";
-prog_char string_11[] PROGMEM = "Del";
-prog_char string_12[] PROGMEM = "Att";
-prog_char string_13[] PROGMEM = "Dec";
-prog_char string_14[] PROGMEM = "Sus";
-prog_char string_15[] PROGMEM = "Rel";
+// Keypad
+AnalogButtons analogButtons(0, 700, &handleButtons);
+Button b_left = Button(2, 500,510);
+Button b_up = Button(3, 140, 148);
+Button b_down = Button(4, 325, 334);
+Button b_right = Button(5, 0, 10);
 
+// Default hold duration is 1 second, lets make it 5 seconds for button5
+Button b_enter = Button(1, 738, 747);
 
-// Then set up a table to refer to your strings.
+// Menu
+MenuLCD g_menuLCD(8, 9, 4, 5, 6, 7, 16,2); 
+MenuManager g_menuManager( &g_menuLCD);//pass the g_menuLCD object to the g_menuManager with the & operator.
 
-PROGMEM const char *string_table[] = 	   // change "string_table" name to suit
-{   
-  string_0,
-  string_1,
-  string_2,
-  string_3,
-  string_4,
-  string_5,
-  string_6,
-  string_7,
-  string_8,
-  string_9,
-  string_10,
-  string_11,
-  string_12,
-  string_13,
-  string_14,
-  string_15
- };
+ boolean g_isDisplaying = true; 
 
+ boolean g_updateLabels = false; 
+ boolean g_updateValues = false; 
 
+volatile char* labels[4];
+volatile int values[4];
+char buffer1[4];
+char buffer2[4];
+char buffer3[4];
+char buffer4[4];
 volatile int currentSetting=0;
 
 void setupMenu(){
@@ -50,31 +34,31 @@ void setupMenu(){
   MenuEntry * p_menuEntryRoot;
 
   //Add root node
-  strcpy_P(buffer, (char*)pgm_read_word(&(string_table[0])));
+  strcpy_P(buffer, PSTR("Audino1012"));
   
   p_menuEntryRoot = new MenuEntry(buffer, NULL, NULL);
   g_menuManager.addMenuRoot( p_menuEntryRoot );
 
-  strcpy_P(buffer, (char*)pgm_read_word(&(string_table[1])));
+  strcpy_P(buffer, PSTR("WT"));
   g_menuManager.addChild( new MenuEntry(buffer, NULL, wavetableCallback ) );  
 
-  strcpy_P(buffer, (char*)pgm_read_word(&(string_table[2])));
+  strcpy_P(buffer, PSTR("Sample"));
   g_menuManager.addChild( new MenuEntry(buffer, NULL, wavetableCallback ) );
 
-  strcpy_P(buffer, (char*)pgm_read_word(&(string_table[3])));
+  strcpy_P(buffer, PSTR("Env 1"));
   g_menuManager.addChild( new MenuEntry(buffer, NULL, envelopeCallback ) );
   
-  strcpy_P(buffer, (char*)pgm_read_word(&(string_table[4])));
+  strcpy_P(buffer, PSTR("Env 2"));
   g_menuManager.addChild( new MenuEntry( buffer, NULL, envelopeCallback) );
 
-  strcpy_P(buffer, (char*)pgm_read_word(&(string_table[5])));
+  strcpy_P(buffer, PSTR("LFO 1"));
   g_menuManager.addChild( new MenuEntry(buffer, NULL, envelopeCallback ) );
 
-  strcpy_P(buffer, (char*)pgm_read_word(&(string_table[6])));
+  strcpy_P(buffer, PSTR("LFO 2"));
   g_menuManager.addChild( new MenuEntry(buffer, NULL, envelopeCallback ) );
 
-  strcpy_P(buffer, (char*)pgm_read_word(&(string_table[7])));
-  g_menuManager.addChild( new MenuEntry(buffer, NULL, envelopeCallback ) );
+  strcpy_P(buffer, PSTR("Ext In"));
+  g_menuManager.addChild( new MenuEntry(buffer, NULL, externalCallback ) );
 
   g_menuManager.DrawMenu();
   
@@ -88,29 +72,32 @@ void setupMenu(){
 void doConfigScreen( char* pMenuText[], int menuvalues[]){ 
   g_isDisplaying = false;
   g_updateValues = true;
-
+  currentSetting = 0;      
+        
    while ( g_isDisplaying == false ) { 
     
-    analogButtons.checkButtons(); 
+    checkKeys(); 
 
       if ( g_updateValues == true ) { 
-        
         char* pTextLines[2];
+        char line1[17]="";
+        char line2[17]="";
         
         // Line 1
           for( int i = 0; i < 4; i++){
             if ( currentSetting == i){
-              strncat(pTextLines[0], "*",1);  
+              strncat(line1, "*",1);  
             } else { 
-               strncat(pTextLines[0], " ",1);  
+               strncat(line1, " ",1);  
             }         
-            strncat(pTextLines[0], pMenuText[i],3);  
+            strncat(line1, pMenuText[i],3);  
           }
-
-
+          pTextLines[0] = line1;
+    
           // Line 2
-          sprintf(pTextLines[1]," %3d %3d %3d %3d", menuvalues[0], menuvalues[1], menuvalues[2], menuvalues[3]);
-           
+          sprintf(line2," %3d %3d %3d %3d", menuvalues[0], menuvalues[1], menuvalues[2], menuvalues[3]);
+          pTextLines[1] = line2;
+                  
           // Send it!
           g_menuLCD.PrintMenu( pTextLines, 2, 3 );
           
@@ -121,50 +108,34 @@ void doConfigScreen( char* pMenuText[], int menuvalues[]){
   }  
 }
 
-  
 void wavetableCallback( char* pMenuText, void *pUserData ){
-  char* labels[4];
-  
-  int values[4];
-  
-  char buffer1[3];
-  char buffer2[3];
-  char buffer3[3];
-  char buffer4[3];
 
-  labels[0] = strcpy_P(buffer1, (char*)pgm_read_word(&(string_table[8])));;
-  labels[1] = strcpy_P(buffer2, (char*)pgm_read_word(&(string_table[9])));;
-  labels[2] = strcpy_P(buffer3, (char*)pgm_read_word(&(string_table[10])));;
-  labels[3] = strcpy_P(buffer4, (char*)pgm_read_word(&(string_table[11])));;
+  labels[0] = strcpy_P(buffer1,PSTR("Sta"));
+  labels[1] = strcpy_P(buffer2,PSTR("End"));
+  labels[2] = strcpy_P(buffer3,PSTR("Off"));
+  labels[3] = strcpy_P(buffer4,PSTR("Del"));
   
-  values[0] = sampleStart;
-  values[1] = sampleEnd;
-  values[2] = sampleOffset;
-  values[3] = sampleDelay;
+//  values[0] = sampleStart;
+//  values[1] = sampleEnd;
+//  values[2] = sampleOffset;
+//  values[3] = sampleDelay;
 
-  doConfigScreen( labels, values);  
+  doConfigScreen( (char**)labels, (int*)values);  
 }
 
 void envelopeCallback( char* pMenuText, void *pUserData ){
 
-  char* labels[4];
 
-  int values[4];
-  char buffer1[3];
-  char buffer2[3];
-  char buffer3[3];
-  char buffer4[3];
-
-  labels[0] = strcpy_P(buffer1, (char*)pgm_read_word(&(string_table[12])));;
-  labels[1] = strcpy_P(buffer2, (char*)pgm_read_word(&(string_table[13])));;
-  labels[2] = strcpy_P(buffer3, (char*)pgm_read_word(&(string_table[14])));;
-  labels[3] = strcpy_P(buffer4, (char*)pgm_read_word(&(string_table[15])));;
+  labels[0] = strcpy_P(buffer1,PSTR("Att"));
+  labels[1] = strcpy_P(buffer2,PSTR("Dec"));
+  labels[2] = strcpy_P(buffer3,PSTR("Sus"));
+  labels[3] = strcpy_P(buffer4,PSTR("Rel"));
   
-  values[0] = attackRate[0];
-  values[1] = decayRate[0];
-  values[2] = sustainLevel[0];
-  values[3] = releaseRate[0];
-  doConfigScreen( labels, values);  
+  //values[0] = attackRate[0];
+  //values[1] = decayRate[0];
+  //values[2] = sustainLevel[0];
+  //values[3] = releaseRate[0];
+  doConfigScreen( (char**)labels, (int*)values);  
 }
 
 void externalCallback( char* pMenuText, void *pUserData ){
@@ -207,7 +178,7 @@ void nextValue(){
   if ( currentSetting != 3 ){
      currentSetting++; 
   } else { 
-    currentSetting = 0;
+     currentSetting = 0;
   }  
   g_updateValues = true;
 }
@@ -221,5 +192,12 @@ void prevValue(){
   g_updateValues = true;
 }
 
+void checkKeys() { 
+   analogButtons.checkButtons();
+}
 
-
+char showString (PGM_P s) {
+    char c;
+    while ((c = pgm_read_byte(s++)) != 0)
+        return c;
+}

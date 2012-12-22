@@ -1,3 +1,9 @@
+boolean div32;
+boolean div16;
+boolean div8;
+boolean div4;
+//volatile boolean f_sample;
+
 void disableInterrupts(){
   /* First disable the timer overflow interrupt while we're configuring */
   TIMSK2 &= ~(1<<TOIE2);   
@@ -54,7 +60,7 @@ ISR( TIMER2_OVF_vect ){
         div8=!div8;  
         if (div8) { 
          
-       //  playSample( ); 
+         playSample( ); 
 
           div4=!div4; 
           if (div4) { 
