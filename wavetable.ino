@@ -4,10 +4,9 @@ I2C_eeprom ee(0x50);
 
 volatile byte ibb;
 volatile byte samplePosition = 0;
-word sample[128];  // Audio Memory Array 
 
 int sampleStart = 0;  
-int sampleEnd = 64;
+int sampleEnd = 128;
 int sampleOffset = 0;
 int sampleDelay = 0;
 int sampleVelocity = 127;
@@ -17,24 +16,29 @@ int sampleShiftRight = 0;
 
 // shift DAC Data
 int bitShiftLeft = 0;
-int bitShiftRight = 16;
+int bitShiftRight = 6;
 
-volatile unsigned int DACValue = 0;
+volatile word DACValue = 0;
 
 void playSample( ){
 
-if (envState[0]){
-  
+if (gateState[0]){
+  //Serial.println("Runnit!");
   samplePosition=samplePosition + sampleOffset;         // modulate the wavetable startpoint
   samplePosition = samplePosition << sampleShiftLeft;
   samplePosition = samplePosition >> sampleShiftRight;
   
-  //DACValue = sample[samplePosition];
-  ee.readBlock(samplePosition, (uint8_t*) &DACValue, 2);  
-  
+//  DACValue = sample[samplePosition];
+  //ee.readBlock(samplePosition, (uint8_t*) &DACValue, 2);  
+      DACValue =  eeprom_read_word((uint16_t*)samplePosition) >> 4;
+
+  //Serial.print(DACValue);
+  //Serial.println(ADSRSample[0]);
+ // Serial.println("  ");
+ // Serial.print(" -- ");
   // process the envelope
-  DACValue =  (DACValue * (ADSRSample[0]  >> 1) );   // todo: add sample velocity
-   
+  DACValue =  (DACValue * (ADSRSample[0] >> 8)) ;   // todo: add sample velocity
+  //Serial.println(DACValue);   
   DACValue = DACValue << bitShiftLeft; 
   DACValue = DACValue >> bitShiftRight; 
   
@@ -60,7 +64,9 @@ if (envState[0]){
  }
 }
 
-
+void resetSamplePosition(){
+  samplePosition = 0;
+}
 void setPitch (int pitch) {
    sampleDelay =  1000 - (pitch*12);
 }
@@ -91,7 +97,7 @@ void changeWave(int index, int group, int steps, int randomize){
     
       ee.readBlock(address, (uint8_t*) &ar, 2);  
      
-     // sample[pointer] = ar;
+      sample[pointer] = ar;
       pointer++;
       stepCount ++;
   }

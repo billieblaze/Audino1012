@@ -8,12 +8,12 @@ const byte RELEASE = 4;
 
 boolean gateState[] = {0,0};
 byte envState[] = {0,0};
-byte ADSRSample[] = {0,0};
+word ADSRSample[] = {0,0};
 
-int attackRate[] = {1, 200};
-int decayRate[] = {10, 100};
-int sustainLevel[] = {255, 255};
-int releaseRate[] = {50, 200};
+byte attackRate[] = {10, 200};
+byte decayRate[] = {50, 100};
+byte sustainLevel[] = {2000, 255};
+byte releaseRate[] = {3, 200};
 
 void oneStep ( int x ) {
   if (ADSRSample[x] < 0) { ADSRSample[x] = 0; envState[x] = DONE; gateState[x]=0;}
@@ -27,7 +27,7 @@ void oneStep ( int x ) {
         break;
       }
   
-      if (ADSRSample[x] + attackRate[x] < 255 ) {
+      if (ADSRSample[x] + attackRate[x] < 4096 ) {
         ADSRSample[x] += attackRate[x];
       } else {
         envState[x] = DECAY;
@@ -76,14 +76,18 @@ void oneStep ( int x ) {
       }
       break;
   }
+//  Serial.print(envState[x]);
+//  Serial.print("-");
+//  Serial.println(ADSRSample[x]);
 }
 
 
 void envOn(int envelope){
-   envState[envelope] = 1;
+  resetSamplePosition();
+  gateState[envelope] = true;
 }
 
 
 void envOff(int envelope){
-   envState[envelope] = 0;
+   gateState[envelope] = false;
 }

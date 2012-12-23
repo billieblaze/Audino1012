@@ -1,5 +1,6 @@
 
 void HandleNoteOn(byte channel, byte pitch, byte velocity) { 
+
   envOn(0);
   setPitch(pitch);
   setVelocity(velocity);

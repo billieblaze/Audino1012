@@ -2,6 +2,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <pgmspace.h>
+#include <avr/eeprom.h>
+
+
 #include <Timer2.h>
 #include <LiquidCrystal.h>
 #include <SPI.h>
@@ -21,7 +24,7 @@ void setup(){
 
   disableInterrupts();
   
-//  Serial.begin(9600);
+    //Serial.begin(9600);
     setupMenu();
     setupDAC();
     setupADC();
@@ -41,7 +44,12 @@ void loop(){
   //triangle 
   //changeWave(0,1,128,0);
   //Square changeWave(128,1,128,0);
-//envState[0] = true;  
+
+// envOn(0);
+// delay(1000);
+// envOff(0);
+// delay(2000);
+
 //r  changeWave(cnt * 10, 4, cnt * 20, 10);  // start point, group, steps, randomizer  
 //  cnt++;
     checkKeys();

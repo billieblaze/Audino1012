@@ -65,7 +65,7 @@ ISR( TIMER2_OVF_vect ){
           div4=!div4; 
           if (div4) { 
              oneStep(0);
-             oneStep(1);
+         //    oneStep(1);
          
             MIDI.read();
           } else { 
