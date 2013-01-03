@@ -10,75 +10,86 @@ boolean gateState[] = {0,0};
 byte envState[] = {0,0};
 word ADSRSample[] = {0,0};
 
-byte attackRate[] = {10, 200};
-byte decayRate[] = {50, 100};
-byte sustainLevel[] = {2000, 255};
-byte releaseRate[] = {3, 200};
+int attackRate[] = {100, 200};
+int decayRate[] = {50, 100};
+int sustainLevel[] = {255, 255};
+int releaseRate[] = {3, 200};
 
-void oneStep ( int x ) {
-  if (ADSRSample[x] < 0) { ADSRSample[x] = 0; envState[x] = DONE; gateState[x]=0;}
-  
-  switch (envState[x]) {
-  
-    case ATTACK:
+boolean droneMode = false;
+
+void envelopeStep ( ) {
+  for ( int x = 0; x < 2; x++ ){
+    if (ADSRSample[x] < 0) { ADSRSample[x] = 0; envState[x] = DONE; gateState[x]=0;}
+    int tmp_decay;
+        
+    switch (envState[x]) {
+    
+      case ATTACK:
+          // gate stopped, release
+        if (gateState[x] == 0) {
+          envState[x] = RELEASE;
+          break;
+        }
+    
+        if (ADSRSample[x] + attackRate[x] < 4096 ) {
+          ADSRSample[x] += attackRate[x];
+        } else {
+          envState[x] = DECAY;
+        }
+        break;
+    
+      case DECAY:
         // gate stopped, release
-      if (gateState[x] == 0) {
-        envState[x] = RELEASE;
+        if (gateState[x] == 0) {
+          envState[x] = RELEASE;
+          break;
+        }
+        
+        tmp_decay  = decayRate[x] * 16;
+        if (ADSRSample[x] - tmp_decay > sustainLevel[x]) {
+          ADSRSample[x] -= tmp_decay;      
+        } else {
+          envState[x] = SUSTAIN;
+        }
         break;
-      }
-  
-      if (ADSRSample[x] + attackRate[x] < 4096 ) {
-        ADSRSample[x] += attackRate[x];
-      } else {
-        envState[x] = DECAY;
-      }
-      break;
-  
-    case DECAY:
-      // gate stopped, release
-      if (gateState[x] == 0) {
-        envState[x] = RELEASE;
+      case SUSTAIN:
+//        Serial.println("sus");
+          // gate stopped, release
+        if (gateState[x] == 0) {
+           envState[x] = RELEASE;
+          break;
+        }
+        ADSRSample[x] = sustainLevel[x];
         break;
-      }
-      if (ADSRSample[x] - decayRate[x] > sustainLevel[x]) {
-        ADSRSample[x] -= decayRate[x];      
-      } else {
-        envState[x] = SUSTAIN;
-      }
-      break;
-    case SUSTAIN:
-        // gate stopped, release
-      if (gateState[x] == 0) {
-         envState[x] = RELEASE;
+    
+      case RELEASE:
+        if (gateState[x] == 1) {
+          ADSRSample[x] = 0;
+          envState[x] = ATTACK;
+          break;
+        } 
+        if (ADSRSample[x] - releaseRate[x] > 0 ) {
+          ADSRSample[x] -= releaseRate[x];       
+        } else {
+          ADSRSample[x] = 0;   
+          envState[x] = DONE;
+        }
         break;
-      }
-      ADSRSample[x] = sustainLevel[x];
-      break;
-  
-    case RELEASE:
-      if (gateState[x] == 1) {
-        envState[x] = ATTACK;
-        break;
-      } 
-      if (ADSRSample[x] - releaseRate[x] > 0) {
-        ADSRSample[x] -= releaseRate[x];       
-      } else {
+        
+      case DONE:
         ADSRSample[x] = 0;   
-        envState[x] = DONE;
-      }
-      break;
-      
-    case DONE:
-      ADSRSample[x] = 0;   
-      if (gateState[x] == 1) {
-        envState[x] = ATTACK;
+        if (gateState[x] == 1) {
+          envState[x] = ATTACK;
+          break;
+        }
         break;
-      }
-      break;
-  }
+    }
 //  Serial.print(envState[x]);
 //  Serial.print("-");
 //  Serial.println(ADSRSample[x]);
+
+  }
+  
 }
 
 
@@ -86,7 +97,6 @@ void envOn(int envelope){
   resetSamplePosition();
   gateState[envelope] = true;
 }
-
 
 void envOff(int envelope){
    gateState[envelope] = false;

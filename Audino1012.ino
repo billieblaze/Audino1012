@@ -12,6 +12,7 @@
 #include <MIDI.h>
 #include <Potentiometer.h>
 #include <AnalogButtons.h>
+#include <digitalWriteFast.h>
 
 #include <I2C_eeprom.h>
 
@@ -19,40 +20,46 @@
 #include "MenuLCD.h"
 #include "MenuManager.h"
 
+// these vars are here because the menu requires them, but they've not been included by wavetable.ino yet
+int sampleStart = 0;  
+int sampleEnd = 128;
+int sampleOffset = 0;
+int sampleDelay = 0;
+
+// shift DAC Data
+int bitShiftLeft = 0;
+int bitShiftRight = 4;
 
 void setup(){
 
   disableInterrupts();
   
-    //Serial.begin(9600);
+   // Serial.begin(9600);
     setupMenu();
     setupDAC();
     setupADC();
     setupMIDI();
     setupInterrupt();   
-
-    changeWave(0,1, 128, 0);   
     enableInterrupts();
 
   //Serial.println(availableMemory());
- //Serial.println(freeRam());
+  // Serial.println(freeRam());
 }
 
 void loop(){ 
-
-//sampleEnd = 50;
-  //triangle 
-  //changeWave(0,1,128,0);
-  //Square changeWave(128,1,128,0);
-
-// envOn(0);
-// delay(1000);
-// envOff(0);
-// delay(2000);
-
-//r  changeWave(cnt * 10, 4, cnt * 20, 10);  // start point, group, steps, randomizer  
-//  cnt++;
+  
+  // envOn(0);
+  // delay(2000);
+  // envOff(0);
+  // delay(10000);
+  
+  //  cnt++;
     checkKeys();
+    
+  /*Serial.println("AvailableMemory");
+  Serial.print(availableMemory());
+  Serial.print("--");
+  Serial.println(freeRam());*/
  }
  
 int availableMemory(){

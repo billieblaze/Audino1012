@@ -1,3 +1,4 @@
+int MIDIChannel = 1; 
 
 void HandleNoteOn(byte channel, byte pitch, byte velocity) { 
 
@@ -17,7 +18,7 @@ void HandleNoteOff(byte channel, byte pitch, byte velocity) {
 
 
 void setupMIDI() {
-  MIDI.begin(MIDI_CHANNEL_OMNI);    
+  MIDI.begin(MIDIChannel);    
   MIDI.setHandleNoteOn(HandleNoteOn);  
   MIDI.setHandleNoteOff(HandleNoteOff);
 }
